@@ -142,7 +142,7 @@
               </span>
             </h1>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              Generate customizable invoices. Add your branding, calculate taxes, and download with effortlessly.
+             Easily generate professional invoices — add branding, calculate taxes, and download in seconds.
             </p>
           </div>
 
