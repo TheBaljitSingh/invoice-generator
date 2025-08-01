@@ -89,7 +89,7 @@ const handleDownloadPDF = async () => {
         <div className="text-right mb-4 ">
           <button
             onClick={handleDownloadPDF}
-            className=" text-white px-4 py-2 rounded bg-green-600 hover:cursor-pointer"
+            className=" text-white px-4 py-2 rounded bg-gray-800 hover:cursor-pointer"
           >
             Download as PDF
           </button>
