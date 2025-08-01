@@ -64,19 +64,15 @@ const handleDownloadPDF = async () => {
   const y = marginY;
 
   pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
-  pdf.save(`Invoice-${data.invoiceNumber || 'Invoice'}.pdf`);
+  pdf.save(`Invoice_${data.companyName}-${data.invoiceNumber}.pdf`);
 };
-
-
-
-
 
 
   return (
     <div
       ref={previewModelRef}
       onClick={closePreview}
-      className="fixed inset-0 bg-transparent bg-opacity-40 backdrop-blur-sm flex justify-center items-center z-50"
+      className="fixed inset-0 bg-opacity-40 backdrop-blur-sm flex justify-center items-center z-50"
     >
       <button
         onClick={onClose}
@@ -85,12 +81,12 @@ const handleDownloadPDF = async () => {
         >
         <X size={24} />
         </button>
-      <div className="relative bg-white w-[800px] rounded-lg shadow-lg p-6 max-h-[90vh] overflow-y-auto">
+      <div className="relative  w-[800px] rounded-lg shadow-lg p-6 max-h-[90vh] overflow-y-auto bg-white">
 
 
 
         {/* 👇 Download Button */}
-        <div className="text-right mb-4">
+        <div className="text-right mb-4 ">
           <button
             onClick={handleDownloadPDF}
             className=" text-white px-4 py-2 rounded bg-green-600 hover:cursor-pointer"
@@ -100,7 +96,7 @@ const handleDownloadPDF = async () => {
         </div>
 
         {/* 👇 PDF Content Area */}
-         <div ref={pdfContentRef} id="pdf-preview" className="text-sm  text-gray-700 space-y-4" >
+         <div ref={pdfContentRef} id="pdf-preview" className="text-sm  text-gray-700 space-y-4 " >
           {/* Header */}
           <div className="flex justify-between items-start">
             <div>
