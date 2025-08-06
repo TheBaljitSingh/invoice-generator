@@ -22,6 +22,7 @@
       invoiceNumber: Math.floor(Math.random()*(1000-1)+1),
       invoiceDate: new Date().toISOString().split('T')[0],
       dueDate: '',
+      addDueDate:false,
 
       items: [], 
 
@@ -29,7 +30,8 @@
 
       //additional thing
       notes:'',
-      gstTaxRate:0, //Gst
+      sgstTaxRate:8, //Gst
+      cgstTaxRate:0,
       discountRate:0 
 
 
@@ -45,7 +47,7 @@
       }
 
       return ()=>{
-              document.body.style.overflow = 'auto';
+          document.body.style.overflow = 'auto';
       }
     },[])
 
@@ -55,6 +57,14 @@
         [field]:value // doubt why array?
       }))
     }
+
+    const handleAddDueDate = (field, value)=>{
+      setInvoiceData(prev=>({
+        ...prev,
+        [field]:value
+      }));
+    }
+    
 
     const handleItemChange = (index, field, value)=>{
 
@@ -100,9 +110,9 @@
     const calculateDiscount = ()=>{
       return (calculateSubtotal()*invoiceData.discountRate )/100;
     }
-
+    
     const calculateTax = () => {
-      return ((calculateSubtotal() - calculateDiscount()) * invoiceData.gstTaxRate) / 100;
+      return ((calculateSubtotal() - calculateDiscount()) * (invoiceData.cgstTaxRate+invoiceData.sgstTaxRate)) / 100;
     };
 
     const calculateTotal = ()=>{
@@ -315,7 +325,11 @@
                     />
                   </div>
                   <div className="flex flex-col">
+                    <div className='flex items-center space-x-1'>
+
                     <label className="text-sm font-medium text-white mb-2">Due Date</label>
+                    <input type='checkbox' className='text-sm font-medium mb-1' value={invoiceData.addDueDate} onChange={(e)=>handleAddDueDate('addDueDate', e.target.checked)  } />
+                    </div>
                     <input
                       type="date"
                       value={invoiceData.dueDate}
@@ -404,13 +418,13 @@
                   {/* <div className="w-2 h-8 bg-gradient-to-b from-cyan-400 to-blue-400 rounded-full mr-3"></div> */}
                   Additional Settings
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-200 mb-2">Tax Rate (%)</label>
+                    <label className="block text-sm font-medium text-gray-200 mb-2">SGST Rate (%)</label>
                     <input
                       type="number"
-                      value={invoiceData.gstTaxRate}
-                      onChange={(e) => handleInputChange('gstTaxRate', parseFloat(e.target.value))}
+                      value={invoiceData.sgstTaxRate}
+                      onChange={(e) => handleInputChange('sgstTaxRate', parseFloat(e.target.value))}
                       className="w-full p-4 bg-white/5 text-white border border-white/20 rounded-xl placeholder-gray-400 focus:outline-none    transition-all"
                       min="0"
                       step="0.01"
@@ -418,6 +432,18 @@
                     />
                   </div>
                   <div>
+                    <label className="block text-sm font-medium text-gray-200 mb-2">CGST Rate (%)</label>
+                    <input
+                      type="number"
+                      value={invoiceData.cgstTaxRate}
+                      onChange={(e) => handleInputChange('cgstTaxRate', parseFloat(e.target.value))}
+                      className="w-full p-4 bg-white/5 text-white border border-white/20 rounded-xl placeholder-gray-400 focus:outline-none    transition-all"
+                      min="0"
+                      step="0.01"
+                      placeholder="0"
+                    />
+                  </div>
+                   <div>
                     <label className="block text-sm font-medium text-gray-200 mb-2">Discount Rate (%)</label>
                     <input
                       type="number"

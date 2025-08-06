@@ -7,7 +7,7 @@ function PreviewModel({ onClose, data }) {
 
 const subtotal = data.items.reduce((acc, item) => acc + item.amount, 0);
 const discount = (subtotal * data.discountRate) / 100;
-const tax = ((subtotal - discount) * data.gstTaxRate) / 100;
+const tax = ((subtotal - discount) * data.sgstTaxRate+data.cgstTaxRate) / 100;
 const total = subtotal - discount + tax;
 
 
@@ -67,6 +67,8 @@ const handleDownloadPDF = async () => {
   pdf.save(`Invoice_${data.companyName}-${data.invoiceNumber}.pdf`);
 };
 
+console.log(data);
+
 
   return (
     <div
@@ -96,111 +98,134 @@ const handleDownloadPDF = async () => {
         </div>
 
         {/* 👇 PDF Content Area */}
-         <div ref={pdfContentRef} id="pdf-preview" className="text-sm  text-gray-700 space-y-4 " >
-          {/* Header */}
-          <div className="flex justify-between items-start">
-            <div>
-              <h1 className="text-2xl font-bold">{data.companyName || 'Your Company'}</h1>
-              <p>{data.companyAddress}</p>
-              <p>{data.companyCity}</p>
-              <p>{data.companyEmail}</p>
-              <p>{data.companyPhone}</p>
-            </div>
-
-            {data.companyLogo && (
-              <img
-                src={data.companyLogo}
-                alt="Company Logo"
-                className="w-24 h-24 object-contain"
-              />
-            )}
-          </div>
-
-          <hr />
-
-          {/* Client Info */}
-          <div>
-            <h2 className="font-semibold text-lg">Bill To:</h2>
-            <p>{data.clientName}</p>
-            <p>{data.clientAddress}</p>
-            <p>{data.clientCity}</p>
-            <p>{data.clientEmail}</p>
-          </div>
-
-          {/* Invoice Info */}
-          <div className="flex justify-between">
-            <p><span className="font-medium">Invoice #: </span>{data.invoiceNumber}</p>
-            <p><span className="font-medium">Invoice Date: </span>{data.invoiceDate}</p>
-            <p><span className="font-medium">Due Date: </span>{data.dueDate}</p>
-          </div>
-
-          {/* Item Table */}
-          <table className="w-full mt-4 border border-gray-300 text-left">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="border px-3 py-2">Description</th>
-                <th className="border px-3 py-2">Qty</th>
-                <th className="border px-3 py-2">Rate</th>
-                <th className="border px-3 py-2">Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.items?.length > 0 ? (
-                data.items.map((item, index) => (
-                  <tr key={index}>
-                    <td className="border px-3 py-2">{item.description}</td>
-                    <td className="border px-3 py-2">{item.quantity}</td>
-                    <td className="border px-3 py-2">₹{item.rate}</td>
-                    <td className="border px-3 py-2">₹{item.amount}</td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="4" className="text-center py-3 text-gray-400">No items added.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-
-      {/* Summary */}
-{/* Summary */}
-<div className="w-full flex justify-between">
-  {/* Notes */}
-  <div >
-
-    {data.notes && (
-      <div className="mt-4">
-        <h3 className="font-medium">Notes:</h3>
-        <p>{data.notes}</p>
+      <div ref={pdfContentRef} id="pdf-preview" className="text-sm text-black px-6 py-6 font-sans">
+  {/* Header: Logo + Company Name */}
+  <div className="flex justify-between items-start mb-2">
+    <div className="flex items-center space-x-2">
+      {data.companyLogo && (
+        <img
+          src={data.companyLogo}
+          alt="Company Logo"
+          className="h-10 w-10 rounded-xl object-contain"
+        />
+      )}
+      <div>
+        <h1 className="text-2xl mb-1 font-semibold">{data.companyName || 'Your Company'}</h1>
+        {/* Optional address or contact info can be placed here */}
       </div>
+    </div>
+
+    {/* You can also move Invoice meta info (number/date) to top right here if preferred */}
+  </div>
+
+  {/* Invoice Title - closer to company name */}
+  <div className="w-full mt-2 mb-6 ">
+    <h1
+      className="uppercase text-[9.5rem] text-center font-bold leading-none tracking-widest"
+      style={{ transform: 'scaleY(1.1)', transformOrigin: 'center' }}
+    >
+      Invoice
+    </h1>
+  </div>
+
+  {/* Invoice Meta */}
+  <div className="flex justify-between items-start mb-6 text-base">
+    <div>
+      <p><span className="font-semibold">Invoice No: </span> #{data.invoiceNumber || 'N/A'}</p>
+    </div>
+    <div>
+      <p><span className="font-semibold">Date:</span> {data.invoiceDate || 'N/A'}</p>
+      {data.addDueDate&& <p>Due:  {data.dueDate}</p>}
+
+    </div>
+  </div>
+
+  {/* Client Info */}
+  <div className="mb-6 mt-18">
+    <h2 className="font-semibold text-lg mb-1">Bill To:</h2>
+
+    <div className='text-[#292929]'>
+
+    <p>{data.clientName}</p>
+    <p>{data.clientAddress}</p>
+    <p>{data.clientCity}</p>
+    <p>{data.clientEmail}</p>
+    </div>
+  </div>
+
+  {/* Items Table */}
+<table className="w-full mt-4 text-left border-collapse">
+  <thead className="border-b-2 border-gray-300">
+    <tr>
+      <th className=" py-2 w-1/2 text-left">Description</th>
+      <th className=" py-2 text-right">Quantity</th>
+      <th className=" py-2 text-right">Price</th>
+      <th className=" py-2 text-right">SubTotal</th>
+    </tr>
+  </thead>
+  <tbody>
+    {data.items?.length > 0 ? (
+      data.items.map((item, index) => (
+        <tr key={index} className="font-semibold text-[#292929] ">
+          <td className="py-2">{item.description}</td>
+          <td className="py-2 text-right">{item.quantity}</td>
+          <td className="py-2 text-right">₹{item.rate}</td>
+          <td className="py-2 text-right">₹{item.amount}</td>
+        </tr>
+      ))
+    ) : (
+      <tr>
+        <td colSpan="4" className="text-center py-3 text-[#292929]">
+          No items added.
+        </td>
+      </tr>
     )}
+  </tbody>
+</table>
+
+
+  {/* Notes and Summary */}
+  <div className="w-full flex justify-between mt-8">
+    {/* Notes */}
+    <div className="max-w-[60%]">
+      {data.notes && (
+        <div>
+          <h3 className="font-semibold mb-1">Notes:</h3>
+          <p className='text-[#292929]'>{data.notes}</p>
+        </div>
+      )}
     </div>
-    <div className="space-y-1 w-[250px] flex flex-col items-end">
-    <div className="flex justify-between w-full">
-      <span>Subtotal:</span>
-      <span>₹{subtotal.toFixed(2)}</span>
-    </div>
-    <div className="flex justify-between w-full">
-      <span>Discount ({data.discountRate}%):</span>
-      <span>₹{discount.toFixed(2)}</span>
-    </div>
-    <div className="flex justify-between w-full">
-      <span>GST ({data.gstTaxRate}%):</span>
-      <span>₹{tax.toFixed(2)}</span>
-    </div>
-    <hr className="w-full" />
-    <div className="flex justify-between w-full font-bold">
-      <span>Total:</span>
-      <span>₹{total.toFixed(2)}</span>
-    </div>
+
+    {/* Summary */}
+    <div className="w-[250px] space-y-2 text-right">
+  <div className="flex justify-between">
+    <span className="font-semibold">Discount ({data.discountRate}%)</span>
+    <span className="inline-block text-right w-[80px]">₹{discount?.toFixed(2)}</span>
+  </div>
+  <div className="flex justify-between">
+    <span className="font-semibold">SGST ({data.sgstTaxRate}%)</span>
+    <span className="inline-block text-right w-[80px]">₹{data.sgstTaxRate?.toFixed(2)}</span>
+  </div>
+  <div className="flex justify-between">
+    <span className="font-semibold">CGST ({data.cgstTaxRate}%)</span>
+    <span className="inline-block text-right w-[80px]">₹{data.cgstTaxRate?.toFixed(2)}</span>
+  </div>
+
+  <hr className="my-1 h-[2px] bg-gray-300 border-0" />
+
+  <div className="flex justify-between text-lg font-bold">
+    <span>Total</span>
+    <span className="inline-block text-right w-[80px]">₹{total?.toFixed(2)}</span>
   </div>
 </div>
 
+  </div>
+
+  <hr className="mt-12 h-[2px]  bg-gray-300 border-0" />
+
+</div>
 
 
-
-          
-        </div>
 
       </div>
     </div>
