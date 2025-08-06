@@ -30,7 +30,7 @@
 
       //additional thing
       notes:'',
-      sgstTaxRate:8, //Gst
+      sgstTaxRate:0, //Gst
       cgstTaxRate:0,
       discountRate:0 
 
@@ -49,13 +49,16 @@
       return ()=>{
           document.body.style.overflow = 'auto';
       }
-    },[])
+    },[invoiceData])
 
     const handleInputChange = (field, value)=>{
+      console.log(field, value);
+
       setInvoiceData(prev=>({
         ...prev,
         [field]:value // doubt why array?
       }))
+      console.log(invoiceData)
     }
 
     const handleAddDueDate = (field, value)=>{
@@ -104,19 +107,38 @@
 
     const calculateSubtotal = ()=>{
       const totalSum =  invoiceData.items.reduce((sum, item)=>sum+item.amount, 0); //default is 0 accumulating the sum of items
+      console.log(totalSum);
       return totalSum;
+
     }
 
     const calculateDiscount = ()=>{
-      return (calculateSubtotal()*invoiceData.discountRate )/100;
+      
+      return (calculateSubtotal()*invoiceData.discountRate )/100 || 0;
     }
     
     const calculateTax = () => {
-      return ((calculateSubtotal() - calculateDiscount()) * (invoiceData.cgstTaxRate+invoiceData.sgstTaxRate)) / 100;
-    };
+      const subtotalAfterDiscount = calculateSubtotal() - calculateDiscount();
+      const cgst = parseFloat(invoiceData.cgstTaxRate) || 0;
+      const sgst = parseFloat(invoiceData.sgstTaxRate) || 0;
+      return (subtotalAfterDiscount * (cgst + sgst)) / 100;
+  };
+    const calculateSgst = ()=>{
+        const subtotalAfterDiscount = calculateSubtotal() - calculateDiscount();
+        const rate = parseFloat(invoiceData.sgstTaxRate) ||0;
+        return (subtotalAfterDiscount*rate /100);
+      
+    }
+    const calculateCgst = () => {
+    const subtotalAfterDiscount = calculateSubtotal() - calculateDiscount();
+    const rate = parseFloat(invoiceData.cgstTaxRate) || 0;
+    return (subtotalAfterDiscount * rate) / 100;
+  };
 
     const calculateTotal = ()=>{
-      return calculateSubtotal()-calculateDiscount()+calculateTax();
+      const totalAmount = calculateSubtotal()-calculateDiscount()+calculateTax();
+
+      return totalAmount;
     }
 
     const handleLogoUpload = (e)=>{
@@ -131,6 +153,8 @@
       }
     }
 
+
+    console.log(invoiceData.cgstTaxRate);
 
 
 
@@ -261,7 +285,7 @@
                       value={invoiceData.clientName}
                       onChange={(e) => handleInputChange('clientName', e.target.value)}
                       className="w-full p-4 bg-white/5 text-white border border-white/20 rounded-xl placeholder-gray-400 focus:outline-none    transition-all"
-                      placeholder="Client Company Name"
+                      placeholder="Client Name"
                     />
                   </div>
                   <div>
@@ -419,6 +443,18 @@
                   Additional Settings
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div>
+                    <label className="block text-sm font-medium text-gray-200 mb-2">Discount Rate (%)</label>
+                    <input
+                      type="number"
+                      value={invoiceData.discountRate}
+                      onChange={(e) => handleInputChange('discountRate', parseFloat(e.target.value))}
+                      className="w-full p-4 bg-white/5 text-white border border-white/20 rounded-xl placeholder-gray-400 focus:outline-none    transition-all"
+                      min="0"
+                      step="0.01"
+                      placeholder="0"
+                    />
+                  </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-200 mb-2">SGST Rate (%)</label>
                     <input
@@ -443,18 +479,7 @@
                       placeholder="0"
                     />
                   </div>
-                   <div>
-                    <label className="block text-sm font-medium text-gray-200 mb-2">Discount Rate (%)</label>
-                    <input
-                      type="number"
-                      value={invoiceData.discountRate}
-                      onChange={(e) => handleInputChange('discountRate', parseFloat(e.target.value))}
-                      className="w-full p-4 bg-white/5 text-white border border-white/20 rounded-xl placeholder-gray-400 focus:outline-none    transition-all"
-                      min="0"
-                      step="0.01"
-                      placeholder="0"
-                    />
-                  </div>
+                 
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-200 mb-2">Notes</label>
@@ -478,7 +503,7 @@
                   onClick={() => setShowPreview(!showPreview)}
                   className="w-full flex items-center hover:cursor-pointer justify-center px-6 py-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-200 shadow-lg mb-4"
                 >
-                  <Download className="w-5 h-5 mr-2" />
+                  <Download className="w-15 h-10 mr-2" />
                   Preview & Download
                 </button>
 
@@ -495,8 +520,12 @@
                         <span className="text-white font-medium">₹{calculateSubtotal().toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>GST:</span>
-                        <span className="text-white font-medium">₹{calculateTax().toFixed(2)}</span>
+                        <span>SGST:</span>
+                        <span className="text-white font-medium">₹{calculateSgst().toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>CGST:</span>
+                        <span className="text-white font-medium">₹{calculateCgst().toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between font-semibold border-t border-white/30 pt-2 text-white text-lg">
                         <span>Total:</span>

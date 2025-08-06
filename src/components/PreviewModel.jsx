@@ -7,7 +7,9 @@ function PreviewModel({ onClose, data }) {
 
 const subtotal = data.items.reduce((acc, item) => acc + item.amount, 0);
 const discount = (subtotal * data.discountRate) / 100;
-const tax = ((subtotal - discount) * data.sgstTaxRate+data.cgstTaxRate) / 100;
+const tax = ((subtotal - discount) * (data.sgstTaxRate+data.cgstTaxRate)) / 100;
+const sgstAmount = ((subtotal-discount) *data.sgstTaxRate /100);
+const cgstAmount = ((subtotal-discount)*data.cgstTaxRate/100);
 const total = subtotal - discount + tax;
 
 
@@ -91,7 +93,7 @@ console.log(data);
         <div className="text-right mb-4 ">
           <button
             onClick={handleDownloadPDF}
-            className=" text-white px-4 py-2 rounded bg-gray-800 hover:cursor-pointer"
+            className=" text-white px-4 py-2 rounded bg-black hover:bg-[#353535f6] hover:cursor-pointer"
           >
             Download as PDF
           </button>
@@ -135,7 +137,7 @@ console.log(data);
     </div>
     <div>
       <p><span className="font-semibold">Date:</span> {data.invoiceDate || 'N/A'}</p>
-      {data.addDueDate&& <p>Due:  {data.dueDate}</p>}
+      {data.addDueDate&& <p className='font-semibold'>Due: <span className='font-normal'> {data.dueDate}</span></p>}
 
     </div>
   </div>
@@ -204,11 +206,11 @@ console.log(data);
   </div>
   <div className="flex justify-between">
     <span className="font-semibold">SGST ({data.sgstTaxRate}%)</span>
-    <span className="inline-block text-right w-[80px]">₹{data.sgstTaxRate?.toFixed(2)}</span>
+    <span className="inline-block text-right w-[80px]">₹{sgstAmount}</span>
   </div>
   <div className="flex justify-between">
     <span className="font-semibold">CGST ({data.cgstTaxRate}%)</span>
-    <span className="inline-block text-right w-[80px]">₹{data.cgstTaxRate?.toFixed(2)}</span>
+    <span className="inline-block text-right w-[80px]">₹{cgstAmount}</span>
   </div>
 
   <hr className="my-1 h-[2px] bg-gray-300 border-0" />
