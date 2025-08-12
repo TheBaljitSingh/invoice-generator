@@ -534,6 +534,17 @@
                     </div>
                   </div>
                 )}
+
+              <div className='pt-3'>
+                  <a href="https://peerlist.io/baljitsingh/project/invoice-generator-tool" target="_blank" rel="noreferrer">
+                  <img
+                    src="https://peerlist.io/api/v1/projects/embed/PRJH9OBAJGBB7MLQE2AMQD6R8MRAJJ?showUpvote=false&theme=light"
+                    alt="Invoice Generator Tool"
+                    className='w-auto h-[72px]'
+
+                  />
+                </a>
+              </div>
               </div>
             </div>
           </div>
